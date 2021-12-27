@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, Form, Container, Message } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';
-import 'firebase/auth';
+import 'firebase/compat/auth';
 import firebase from '../utils/firebase';
 
 function Signin() {

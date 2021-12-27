@@ -1,7 +1,7 @@
 import { Container, Header, Form, Image, Button } from 'semantic-ui-react';
 import React from 'react';
-import 'firebase/firestore';
-import 'firebase/storage';
+import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
 import { useNavigate } from 'react-router-dom';
 
 import firebase from '../utils/firebase';

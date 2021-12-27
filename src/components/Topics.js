@@ -1,7 +1,7 @@
 import React from 'react';
 import { List } from 'semantic-ui-react';
 import { Link, useLocation } from 'react-router-dom';
-import 'firebase/firestore';
+import 'firebase/compat/firestore';
 
 import firebase from '../utils/firebase';
 
