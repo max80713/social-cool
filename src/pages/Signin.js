@@ -1,11 +1,11 @@
 import React from 'react';
 import { Menu, Form, Container, Message } from 'semantic-ui-react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import 'firebase/auth';
 import firebase from '../utils/firebase';
 
 function Signin() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [activeItem, setActiveItem] = React.useState('register');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -19,7 +19,7 @@ function Signin() {
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then(() => {
-          history.push('/posts');
+          navigate('/posts');
           setIsLoading(false);
         })
         .catch((error) => {
@@ -42,7 +42,7 @@ function Signin() {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then(() => {
-          history.push('/posts');
+          navigate('/posts');
           setIsLoading(false);
         })
         .catch((error) => {

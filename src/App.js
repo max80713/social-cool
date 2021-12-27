@@ -1,4 +1,10 @@
-import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from 'react-router-dom';
 import { Container, Grid } from 'semantic-ui-react';
 import React from 'react';
 
@@ -27,67 +33,72 @@ function App() {
   return (
     <BrowserRouter>
       <Header user={user} />
-      <Switch>
-        <Route path="/posts">
-          <Container>
-            <Grid>
-              <Grid.Row>
-                <Grid.Column width={3}>
-                  <Topics />
-                </Grid.Column>
-                <Grid.Column width={10}>
-                  <Switch>
-                    <Route path="/posts" exact>
-                      <Posts />
-                    </Route>
-                    <Route path="/posts/:postId" exact>
-                      {user !== null ? <Post /> : <Redirect to="/posts" />}
-                    </Route>
-                  </Switch>
-                </Grid.Column>
-                <Grid.Column width={3}></Grid.Column>
-              </Grid.Row>
-            </Grid>
-          </Container>
-        </Route>
-
-        <Route path="/my">
-          {user !== null ? (
+      <Routes>
+        <Route
+          path="posts"
+          element={
             <Container>
               <Grid>
                 <Grid.Row>
                   <Grid.Column width={3}>
-                    <MyMenu />
+                    <Topics />
                   </Grid.Column>
                   <Grid.Column width={10}>
-                    <Switch>
-                      <Route path="/my/posts" exact>
-                        <MyPosts />
-                      </Route>
-                      <Route path="/my/collections" exact>
-                        <MyCollections />
-                      </Route>
-                      <Route path="/my/settings" exact>
-                        <MySettings user={user} />
-                      </Route>
-                    </Switch>
+                    <Outlet />
                   </Grid.Column>
                   <Grid.Column width={3}></Grid.Column>
                 </Grid.Row>
               </Grid>
             </Container>
-          ) : (
-            <Redirect to="/posts" />
-          )}
+          }
+        >
+          <Route index element={<Posts />} />
+          <Route
+            path=":postId"
+            element={
+              user !== null ? <Post /> : <Navigate to="/posts" replace />
+            }
+          />
         </Route>
-
-        <Route path="/signin" exact>
-          {user !== null ? <Redirect to="/posts" /> : <Signin />}
+        <Route
+          path="my"
+          element={
+            user !== null ? (
+              <Container>
+                <Grid>
+                  <Grid.Row>
+                    <Grid.Column width={3}>
+                      <MyMenu />
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                      <Outlet />
+                    </Grid.Column>
+                    <Grid.Column width={3}></Grid.Column>
+                  </Grid.Row>
+                </Grid>
+              </Container>
+            ) : (
+              <Navigate to="/posts" />
+            )
+          }
+        >
+          <Route path="posts" element={<MyPosts />} />
+          <Route path="collections" element={<MyCollections />} />
+          <Route path="settings" element={<MySettings user={user} />} />
         </Route>
-        <Route path="/new-post" exact>
-          {user !== null ? <NewPost /> : <Redirect to="/posts" />}
-        </Route>
-      </Switch>
+        <Route
+          path="signin"
+          element={
+            user !== null ? <Navigate to="/posts" replace /> : <Signin />
+          }
+        />
+        <Route
+          path="new-post"
+          element={
+            user !== null ? <NewPost /> : <Navigate to="/posts" replace />
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

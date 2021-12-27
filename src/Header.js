@@ -1,12 +1,12 @@
 import { Menu, Search } from 'semantic-ui-react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
 import algolia from './utils/algolia';
 
 import firebase from './utils/firebase';
 
 function Header({ user }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = React.useState('');
   const [results, setResults] = React.useState([]);
 
@@ -26,7 +26,7 @@ function Header({ user }) {
   }
 
   function onResultSelect(e, { result }) {
-    history.push(`/posts/${result.id}`);
+    navigate(`/posts/${result.id}`);
   }
 
   return (

@@ -2,12 +2,12 @@ import { Container, Header, Form, Image, Button } from 'semantic-ui-react';
 import React from 'react';
 import 'firebase/firestore';
 import 'firebase/storage';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import firebase from '../utils/firebase';
 
 function NewPost() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [title, setTitle] = React.useState('');
   const [content, setContent] = React.useState('');
   const [topics, setTopics] = React.useState([]);
@@ -64,7 +64,7 @@ function NewPost() {
           })
           .then(() => {
             setIsLoading(false);
-            history.push('/posts');
+            navigate('/posts');
           });
       });
     });
