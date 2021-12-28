@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Image, Header, Segment, Icon, Comment, Form } from 'semantic-ui-react';
 
-import firebase from '../utils/firebase';
+import firebase, { auth } from '../utils/firebase';
 
 function Post() {
   const { postId } = useParams();
@@ -44,7 +44,7 @@ function Post() {
   }, []);
 
   function toggle(isActive, field) {
-    const uid = firebase.auth().currentUser.uid;
+    const uid = auth.currentUser.uid;
     firebase
       .firestore()
       .collection('posts')
@@ -56,11 +56,9 @@ function Post() {
       });
   }
 
-  const isCollected = post.collectedBy?.includes(
-    firebase.auth().currentUser.uid
-  );
+  const isCollected = post.collectedBy?.includes(auth.currentUser.uid);
 
-  const isLiked = post.likedBy?.includes(firebase.auth().currentUser.uid);
+  const isLiked = post.likedBy?.includes(auth.currentUser.uid);
 
   function onSubmit() {
     setIsLoading(true);
@@ -78,9 +76,9 @@ function Post() {
       content: commentContent,
       createdAt: firebase.firestore.Timestamp.now(),
       author: {
-        uid: firebase.auth().currentUser.uid,
-        displayName: firebase.auth().currentUser.displayName || '',
-        photoURL: firebase.auth().currentUser.photoURL || '',
+        uid: auth.currentUser.uid,
+        displayName: auth.currentUser.displayName || '',
+        photoURL: auth.currentUser.photoURL || '',
       },
     });
 
@@ -88,9 +86,7 @@ function Post() {
     batch.set(mailRef, {
       to: post.author.email,
       message: {
-        subject: `新訊息：${
-          firebase.auth().currentUser.displayName
-        } 剛剛回覆了你的文章`,
+        subject: `新訊息：${auth.currentUser.displayName} 剛剛回覆了你的文章`,
         html: `<a href="${window.location.origin}/posts/${postId}">前往文章</a>`,
       },
     });

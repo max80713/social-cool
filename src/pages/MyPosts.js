@@ -1,7 +1,7 @@
 import React from 'react';
 import { Item, Header } from 'semantic-ui-react';
 
-import firebase from '../utils/firebase';
+import firebase, { auth } from '../utils/firebase';
 import Post from '../components/Post';
 
 function MyPosts() {
@@ -10,7 +10,7 @@ function MyPosts() {
     firebase
       .firestore()
       .collection('posts')
-      .where('author.uid', '==', firebase.auth().currentUser.uid)
+      .where('author.uid', '==', auth.currentUser.uid)
       .get()
       .then((collectionSnapshot) => {
         const data = collectionSnapshot.docs.map((docSnapshot) => {

@@ -4,7 +4,7 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
 import { useNavigate } from 'react-router-dom';
 
-import firebase from '../utils/firebase';
+import firebase, { auth } from '../utils/firebase';
 
 function NewPost() {
   const navigate = useNavigate();
@@ -55,10 +55,10 @@ function NewPost() {
             topic: topicName,
             createdAt: firebase.firestore.Timestamp.now(),
             author: {
-              displayName: firebase.auth().currentUser.displayName || '',
-              photoURL: firebase.auth().currentUser.photoURL || '',
-              uid: firebase.auth().currentUser.uid,
-              email: firebase.auth().currentUser.email,
+              displayName: auth.currentUser.displayName || '',
+              photoURL: auth.currentUser.photoURL || '',
+              uid: auth.currentUser.uid,
+              email: auth.currentUser.email,
             },
             imageUrl,
           })

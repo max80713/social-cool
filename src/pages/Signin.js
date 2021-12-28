@@ -1,8 +1,11 @@
 import React from 'react';
 import { Menu, Form, Container, Message } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';
-import 'firebase/compat/auth';
-import firebase from '../utils/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
+import { auth } from '../utils/firebase';
 
 function Signin() {
   const navigate = useNavigate();
@@ -12,54 +15,38 @@ function Signin() {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
-    if (activeItem === 'register') {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          navigate('/posts');
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          switch (error.code) {
-            case 'auth/email-already-in-use':
-              setErrorMessage('信箱已存在');
-              break;
-            case 'auth/invalid-email':
-              setErrorMessage('信箱格式不正確');
-              break;
-            case 'auth/weak-password':
-              setErrorMessage('密碼強度不足');
-              break;
-            default:
-          }
-          setIsLoading(false);
-        });
-    } else if (activeItem === 'signin') {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(() => {
-          navigate('/posts');
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          switch (error.code) {
-            case 'auth/invalid-email':
-              setErrorMessage('信箱格式不正確');
-              break;
-            case 'auth/user-not-found':
-              setErrorMessage('信箱不存在');
-              break;
-            case 'auth/wrong-password':
-              setErrorMessage('密碼錯誤');
-              break;
-            default:
-          }
-          setIsLoading(false);
-        });
+    try {
+      if (activeItem === 'register') {
+        await createUserWithEmailAndPassword(auth, email, password);
+        navigate('/posts');
+        setIsLoading(false);
+      } else if (activeItem === 'signin') {
+        await signInWithEmailAndPassword(auth, email, password);
+        navigate('/posts');
+      }
+    } catch (error) {
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          setErrorMessage('信箱已存在');
+          break;
+        case 'auth/invalid-email':
+          setErrorMessage('信箱格式不正確');
+          break;
+        case 'auth/weak-password':
+          setErrorMessage('密碼強度不足');
+          break;
+        case 'auth/user-not-found':
+          setErrorMessage('信箱不存在');
+          break;
+        case 'auth/wrong-password':
+          setErrorMessage('密碼錯誤');
+          break;
+        default:
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 

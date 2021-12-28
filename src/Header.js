@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
 import algolia from './utils/algolia';
 
-import firebase from './utils/firebase';
+import { auth } from './utils/firebase';
+import { signOut } from 'firebase/auth';
 
 function Header({ user }) {
   const navigate = useNavigate();
@@ -52,9 +53,7 @@ function Header({ user }) {
             <Menu.Item as={Link} to="/my/posts">
               會員
             </Menu.Item>
-            <Menu.Item onClick={() => firebase.auth().signOut()}>
-              登出
-            </Menu.Item>
+            <Menu.Item onClick={() => signOut(auth)}>登出</Menu.Item>
           </>
         ) : (
           <Menu.Item as={Link} to="/signin">

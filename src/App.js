@@ -7,8 +7,9 @@ import {
 } from 'react-router-dom';
 import { Container, Grid } from 'semantic-ui-react';
 import React from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
 
-import firebase from './utils/firebase';
+import { auth } from './utils/firebase';
 
 import Header from './Header';
 
@@ -26,9 +27,7 @@ import MyMenu from './components/MyMenu';
 function App() {
   const [user, setUser] = React.useState();
   React.useEffect(() => {
-    firebase.auth().onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-    });
+    onAuthStateChanged(auth, setUser);
   }, []);
   return (
     <BrowserRouter>
