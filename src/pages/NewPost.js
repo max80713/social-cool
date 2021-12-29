@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Header, Form, Image, Button } from 'semantic-ui-react';
-import 'firebase/compat/storage';
 import {
   collection,
   doc,
@@ -9,8 +8,9 @@ import {
   setDoc,
   Timestamp,
 } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
-import firebase, { auth, db } from '../utils/firebase';
+import { auth, db, storage } from '../utils/firebase';
 
 function NewPost() {
   const navigate = useNavigate();
@@ -41,32 +41,33 @@ function NewPost() {
     ? URL.createObjectURL(file)
     : 'https://react.semantic-ui.com/images/wireframe/image.png';
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
     const docRef = doc(collection(db, 'posts'));
-    const fileRef = firebase.storage().ref('post-images/' + docRef.id);
     const metadata = {
       contentType: file.type,
     };
-    fileRef.put(file, metadata).then(() => {
-      fileRef.getDownloadURL().then(async (imageUrl) => {
-        await setDoc(docRef, {
-          title,
-          content,
-          topic: topicName,
-          createdAt: Timestamp.now(),
-          author: {
-            displayName: auth.currentUser.displayName || '',
-            photoURL: auth.currentUser.photoURL || '',
-            uid: auth.currentUser.uid,
-            email: auth.currentUser.email,
-          },
-          imageUrl,
-        });
-        setIsLoading(false);
-        navigate('/posts');
-      });
+    const result = await uploadBytes(
+      ref(storage, 'post-images/' + docRef.id),
+      file,
+      metadata
+    );
+    const imageUrl = await getDownloadURL(result.ref);
+    await setDoc(docRef, {
+      title,
+      content,
+      topic: topicName,
+      createdAt: Timestamp.now(),
+      author: {
+        displayName: auth.currentUser.displayName || '',
+        photoURL: auth.currentUser.photoURL || '',
+        uid: auth.currentUser.uid,
+        email: auth.currentUser.email,
+      },
+      imageUrl,
     });
+    setIsLoading(false);
+    navigate('/posts');
   }
 
   return (

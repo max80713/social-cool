@@ -7,25 +7,30 @@ import {
   Input,
   Image,
 } from 'semantic-ui-react';
+import {
+  reauthenticateWithCredential,
+  updatePassword,
+  updateProfile,
+} from 'firebase/auth';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
-import firebase from '../utils/firebase';
+import { storage } from '../utils/firebase';
 
 function MyName({ user }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [displayName, setDisplayName] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
-    user
-      .updateProfile({
-        displayName,
-      })
-      .then(() => {
-        setIsLoading(false);
-        setDisplayName('');
-        setIsModalOpen(false);
-      });
+
+    await updateProfile(user, {
+      displayName,
+    });
+
+    setIsLoading(false);
+    setDisplayName('');
+    setIsModalOpen(false);
   }
 
   return (
@@ -65,25 +70,23 @@ function MyPhoto({ user }) {
 
   const previewImageUrl = file ? URL.createObjectURL(file) : user.photoURL;
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
-    const fileRef = firebase.storage().ref('user-photos/' + user.uid);
     const metadata = {
       contentType: file.type,
     };
-    fileRef.put(file, metadata).then(() => {
-      fileRef.getDownloadURL().then((imageUrl) => {
-        user
-          .updateProfile({
-            photoURL: imageUrl,
-          })
-          .then(() => {
-            setIsLoading(false);
-            setFile(null);
-            setIsModalOpen(false);
-          });
-      });
+    const result = await uploadBytes(
+      ref(storage, 'user-photos/' + user.uid),
+      file,
+      metadata
+    );
+    const imageUrl = await getDownloadURL(result.ref);
+    await updateProfile(user, {
+      photoURL: imageUrl,
     });
+    setIsLoading(false);
+    setFile(null);
+    setIsModalOpen(false);
   }
 
   return (
@@ -130,20 +133,20 @@ function MyPassword({ user }) {
   const [newPassword, setNewPassword] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
+
     const credential = firebase.auth.EmailAuthProvider.credential(
       user.email,
       oldPassword
     );
-    user.reauthenticateWithCredential(credential).then(() => {
-      user.updatePassword(newPassword).then(() => {
-        setIsModalOpen(false);
-        setOldPassword('');
-        setNewPassword('');
-        setIsLoading(false);
-      });
-    });
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+
+    setIsModalOpen(false);
+    setOldPassword('');
+    setNewPassword('');
+    setIsLoading(false);
   }
 
   return (

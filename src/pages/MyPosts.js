@@ -2,7 +2,7 @@ import React from 'react';
 import { Item, Header } from 'semantic-ui-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
-import { auth } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 import Post from '../components/Post';
 
 function MyPosts() {
