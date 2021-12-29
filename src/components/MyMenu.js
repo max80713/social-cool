@@ -1,6 +1,5 @@
 import React from 'react';
 import { List } from 'semantic-ui-react';
-import 'firebase/compat/firestore';
 import { Link, useLocation } from 'react-router-dom';
 
 function MyMenu() {

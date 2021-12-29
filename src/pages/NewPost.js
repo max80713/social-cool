@@ -1,10 +1,16 @@
-import { Container, Header, Form, Image, Button } from 'semantic-ui-react';
 import React from 'react';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
 import { useNavigate } from 'react-router-dom';
+import { Container, Header, Form, Image, Button } from 'semantic-ui-react';
+import 'firebase/compat/storage';
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  Timestamp,
+} from 'firebase/firestore';
 
-import firebase, { auth } from '../utils/firebase';
+import firebase, { auth, db } from '../utils/firebase';
 
 function NewPost() {
   const navigate = useNavigate();
@@ -16,16 +22,12 @@ function NewPost() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
-    firebase
-      .firestore()
-      .collection('topics')
-      .get()
-      .then((collectionSnapshot) => {
-        const data = collectionSnapshot.docs.map((doc) => {
-          return doc.data();
-        });
-        setTopics(data);
-      });
+    async function getTopics() {
+      const querySnapshot = await getDocs(collection(db, 'topics'));
+      const data = querySnapshot.docs.map((doc) => doc.data());
+      setTopics(data);
+    }
+    getTopics();
   }, []);
 
   const options = topics.map((topic) => {
@@ -41,31 +43,28 @@ function NewPost() {
 
   function onSubmit() {
     setIsLoading(true);
-    const documentRef = firebase.firestore().collection('posts').doc();
-    const fileRef = firebase.storage().ref('post-images/' + documentRef.id);
+    const docRef = doc(collection(db, 'posts'));
+    const fileRef = firebase.storage().ref('post-images/' + docRef.id);
     const metadata = {
       contentType: file.type,
     };
     fileRef.put(file, metadata).then(() => {
-      fileRef.getDownloadURL().then((imageUrl) => {
-        documentRef
-          .set({
-            title,
-            content,
-            topic: topicName,
-            createdAt: firebase.firestore.Timestamp.now(),
-            author: {
-              displayName: auth.currentUser.displayName || '',
-              photoURL: auth.currentUser.photoURL || '',
-              uid: auth.currentUser.uid,
-              email: auth.currentUser.email,
-            },
-            imageUrl,
-          })
-          .then(() => {
-            setIsLoading(false);
-            navigate('/posts');
-          });
+      fileRef.getDownloadURL().then(async (imageUrl) => {
+        await setDoc(docRef, {
+          title,
+          content,
+          topic: topicName,
+          createdAt: Timestamp.now(),
+          author: {
+            displayName: auth.currentUser.displayName || '',
+            photoURL: auth.currentUser.photoURL || '',
+            uid: auth.currentUser.uid,
+            email: auth.currentUser.email,
+          },
+          imageUrl,
+        });
+        setIsLoading(false);
+        navigate('/posts');
       });
     });
   }

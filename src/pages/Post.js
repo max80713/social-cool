@@ -1,8 +1,21 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Image, Header, Segment, Icon, Comment, Form } from 'semantic-ui-react';
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  increment,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+  writeBatch,
+} from 'firebase/firestore';
 
-import firebase, { auth } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 
 function Post() {
   const { postId } = useParams();
@@ -13,68 +26,46 @@ function Post() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [comments, setComments] = React.useState([]);
   React.useEffect(() => {
-    firebase
-      .firestore()
-      .collection('posts')
-      .doc(postId)
-      .onSnapshot((docSnapshot) => {
-        const data = docSnapshot.data();
-        setPost(data);
-      });
-    //   .get()
-    //   .then((docSnapshot) => {
-    //     const data = docSnapshot.data();
-    //     setPost(data);
-    //   });
+    onSnapshot(doc(db, 'posts', postId), (doc) => {
+      setPost(doc.data());
+    });
   }, []);
 
   React.useEffect(() => {
-    firebase
-      .firestore()
-      .collection('posts')
-      .doc(postId)
-      .collection('comments')
-      .orderBy('createdAt')
-      .onSnapshot((collectionSnapshot) => {
-        const data = collectionSnapshot.docs.map((doc) => {
-          return doc.data();
-        });
-        setComments(data);
-      });
+    const q = query(
+      collection(db, 'posts', postId, 'comments'),
+      orderBy('createdAt')
+    );
+    onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map((doc) => doc.data());
+      setComments(data);
+    });
   }, []);
 
   function toggle(isActive, field) {
     const uid = auth.currentUser.uid;
-    firebase
-      .firestore()
-      .collection('posts')
-      .doc(postId)
-      .update({
-        [field]: isActive
-          ? firebase.firestore.FieldValue.arrayRemove(uid)
-          : firebase.firestore.FieldValue.arrayUnion(uid),
-      });
+    updateDoc(doc(db, 'posts', postId), {
+      [field]: isActive ? arrayRemove(uid) : arrayUnion(uid),
+    });
   }
 
   const isCollected = post.collectedBy?.includes(auth.currentUser.uid);
 
   const isLiked = post.likedBy?.includes(auth.currentUser.uid);
 
-  function onSubmit() {
+  async function onSubmit() {
     setIsLoading(true);
-    const firestore = firebase.firestore();
+    const batch = writeBatch(db);
 
-    const batch = firestore.batch();
-
-    const postRef = firestore.collection('posts').doc(postId);
+    const postRef = doc(db, 'posts', postId);
     batch.update(postRef, {
-      commentsCount: firebase.firestore.FieldValue.increment(1),
+      commentsCount: increment(1),
     });
 
-    const commentRef = postRef.collection('comments').doc();
+    const commentRef = doc(collection(db, 'posts', postId, 'comments'));
     batch.set(commentRef, {
       content: commentContent,
-      createdAt: firebase.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
       author: {
         uid: auth.currentUser.uid,
         displayName: auth.currentUser.displayName || '',
@@ -82,7 +73,7 @@ function Post() {
       },
     });
 
-    const mailRef = firestore.collection('mail').doc();
+    const mailRef = doc(collection(db, 'mail'));
     batch.set(mailRef, {
       to: post.author.email,
       message: {
@@ -91,10 +82,9 @@ function Post() {
       },
     });
 
-    batch.commit().then(() => {
-      setCommentContent('');
-      setIsLoading(false);
-    });
+    await batch.commit();
+    setCommentContent('');
+    setIsLoading(false);
   }
 
   return (
