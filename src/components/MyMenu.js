@@ -20,18 +20,16 @@ function MyMenu() {
   ];
   return (
     <List animated selection>
-      {menuItems.map((menuItem) => {
-        return (
-          <List.Item
-            as={Link}
-            to={menuItem.path}
-            key={menuItem.name}
-            active={menuItem.path === location.pathname}
-          >
-            {menuItem.name}
-          </List.Item>
-        );
-      })}
+      {menuItems.map((menuItem) => (
+        <List.Item
+          as={Link}
+          to={menuItem.path}
+          key={menuItem.name}
+          active={menuItem.path === location.pathname}
+        >
+          {menuItem.name}
+        </List.Item>
+      ))}
     </List>
   );
 }

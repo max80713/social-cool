@@ -26,9 +26,9 @@ function MyPosts() {
     <>
       <Header>我的文章</Header>
       <Item.Group>
-        {posts.map((post) => {
-          return <Post post={post} key={post.id} />;
-        })}
+        {posts.map((post) => (
+          <Post post={post} key={post.id} />
+        ))}
       </Item.Group>
     </>
   );

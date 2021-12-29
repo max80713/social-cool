@@ -30,12 +30,10 @@ function NewPost() {
     getTopics();
   }, []);
 
-  const options = topics.map((topic) => {
-    return {
-      text: topic.name,
-      value: topic.name,
-    };
-  });
+  const options = topics.map((topic) => ({
+    text: topic.name,
+    value: topic.name,
+  }));
 
   const previewUrl = file
     ? URL.createObjectURL(file)

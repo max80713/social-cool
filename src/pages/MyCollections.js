@@ -26,9 +26,9 @@ function MyCollections() {
     <>
       <Header>我的收藏</Header>
       <Item.Group>
-        {posts.map((post) => {
-          return <Post post={post} key={post.id} />;
-        })}
+        {posts.map((post) => (
+          <Post post={post} key={post.id} />
+        ))}
       </Item.Group>
     </>
   );

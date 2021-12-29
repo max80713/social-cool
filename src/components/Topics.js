@@ -20,18 +20,16 @@ function Topics() {
   }, []);
   return (
     <List animated selection>
-      {topics.map((topic) => {
-        return (
-          <List.Item
-            key={topic.name}
-            as={Link}
-            to={`/posts?topic=${topic.name}`}
-            active={currentTopic === topic.name}
-          >
-            {topic.name}
-          </List.Item>
-        );
-      })}
+      {topics.map((topic) => (
+        <List.Item
+          key={topic.name}
+          as={Link}
+          to={`/posts?topic=${topic.name}`}
+          active={currentTopic === topic.name}
+        >
+          {topic.name}
+        </List.Item>
+      ))}
     </List>
   );
 }

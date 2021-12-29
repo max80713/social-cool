@@ -11,19 +11,16 @@ function Header({ user }) {
   const [inputValue, setInputValue] = React.useState('');
   const [results, setResults] = React.useState([]);
 
-  function onSearchChange(e, { value }) {
+  async function onSearchChange(e, { value }) {
     setInputValue(value);
 
-    algolia.search(value).then((result) => {
-      const searchResults = result.hits.map((hit) => {
-        return {
-          title: hit.title,
-          description: hit.content,
-          id: hit.objectID,
-        };
-      });
-      setResults(searchResults);
-    });
+    const result = await algolia.search(value);
+    const searchResults = result.hits.map((hit) => ({
+      title: hit.title,
+      description: hit.content,
+      id: hit.objectID,
+    }));
+    setResults(searchResults);
   }
 
   function onResultSelect(e, { result }) {

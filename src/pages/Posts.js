@@ -15,21 +15,12 @@ import { Waypoint } from 'react-waypoint';
 import { db } from '../utils/firebase';
 import Post from '../components/Post';
 
-function usePrevious(value) {
-  const ref = React.useRef();
-  React.useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
-
 function Posts() {
   const location = useLocation();
   const urlSearchParams = new URLSearchParams(location.search);
   const currentTopic = urlSearchParams.get('topic');
   const [posts, setPosts] = React.useState([]);
   const lastPostSnapshotRef = React.useRef();
-  const previousTopic = usePrevious(currentTopic);
 
   async function getPosts() {
     const queryConstraints = [];
@@ -63,9 +54,9 @@ function Posts() {
   return (
     <>
       <Item.Group>
-        {posts.map((post) => {
-          return <Post post={post} key={post.id} />;
-        })}
+        {posts.map((post) => (
+          <Post post={post} key={post.id} />
+        ))}
       </Item.Group>
       <Waypoint key={currentTopic} onEnter={getPosts} />
     </>

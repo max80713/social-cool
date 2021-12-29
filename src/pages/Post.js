@@ -132,22 +132,20 @@ function Post() {
           </Form.Button>
         </Form>
         <Header>共 {post.commentsCount || 0} 則留言</Header>
-        {comments.map((comment) => {
-          return (
-            <Comment>
-              <Comment.Avatar src={comment.author.photoURL} />
-              <Comment.Content>
-                <Comment.Author as="span">
-                  {comment.author.displayName || '使用者'}
-                </Comment.Author>
-                <Comment.Metadata>
-                  {comment.createdAt.toDate().toLocaleString()}
-                </Comment.Metadata>
-                <Comment.Text>{comment.content}</Comment.Text>
-              </Comment.Content>
-            </Comment>
-          );
-        })}
+        {comments.map((comment) => (
+          <Comment>
+            <Comment.Avatar src={comment.author.photoURL} />
+            <Comment.Content>
+              <Comment.Author as="span">
+                {comment.author.displayName || '使用者'}
+              </Comment.Author>
+              <Comment.Metadata>
+                {comment.createdAt.toDate().toLocaleString()}
+              </Comment.Metadata>
+              <Comment.Text>{comment.content}</Comment.Text>
+            </Comment.Content>
+          </Comment>
+        ))}
       </Comment.Group>
     </>
   );

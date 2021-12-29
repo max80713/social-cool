@@ -26,9 +26,13 @@ import MyMenu from './components/MyMenu';
 
 function App() {
   const [user, setUser] = React.useState();
+
   React.useEffect(() => {
     onAuthStateChanged(auth, setUser);
   }, []);
+
+  if (user === undefined) return null;
+
   return (
     <BrowserRouter>
       <Header user={user} />
@@ -45,7 +49,7 @@ function App() {
                   <Grid.Column width={10}>
                     <Outlet />
                   </Grid.Column>
-                  <Grid.Column width={3}></Grid.Column>
+                  <Grid.Column width={3} />
                 </Grid.Row>
               </Grid>
             </Container>
@@ -54,15 +58,13 @@ function App() {
           <Route index element={<Posts />} />
           <Route
             path=":postId"
-            element={
-              user !== null ? <Post /> : <Navigate to="/posts" replace />
-            }
+            element={user ? <Post /> : <Navigate to="/posts" replace />}
           />
         </Route>
         <Route
           path="my"
           element={
-            user !== null ? (
+            user ? (
               <Container>
                 <Grid>
                   <Grid.Row>
@@ -72,7 +74,7 @@ function App() {
                     <Grid.Column width={10}>
                       <Outlet />
                     </Grid.Column>
-                    <Grid.Column width={3}></Grid.Column>
+                    <Grid.Column width={3} />
                   </Grid.Row>
                 </Grid>
               </Container>
@@ -87,15 +89,11 @@ function App() {
         </Route>
         <Route
           path="signin"
-          element={
-            user !== null ? <Navigate to="/posts" replace /> : <Signin />
-          }
+          element={user ? <Navigate to="/posts" replace /> : <Signin />}
         />
         <Route
           path="new-post"
-          element={
-            user !== null ? <NewPost /> : <Navigate to="/posts" replace />
-          }
+          element={user ? <NewPost /> : <Navigate to="/posts" replace />}
         />
       </Routes>
     </BrowserRouter>
